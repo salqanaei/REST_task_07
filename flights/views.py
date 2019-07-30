@@ -8,11 +8,19 @@ from .permissions import IsBookingOwner, IsChangable
 
 
 class FlightsList(ListAPIView):
-	queryset = Flight.objects.all()
 	serializer_class = FlightSerializer
 	filter_backends = [SearchFilter, OrderingFilter, ]
 	search_fields = ['destination',]
 
+	def get_queryset(self):
+		queryset = Flight.objects.all()
+		Greater = self.request.GET.get('greater')
+		Less = self.request.GET.get('less')
+		if Greater:
+			queryset = queryset.filter(price__gte=Greater)
+		if Less:
+			queryset = queryset.filter(price__lte=Less)
+		return queryset
 
 class BookingsList(ListAPIView):
 	serializer_class = BookingSerializer
